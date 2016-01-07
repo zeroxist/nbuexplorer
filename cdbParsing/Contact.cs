@@ -83,22 +83,7 @@ namespace NbuExplorer.cdbParsing
 				if (value == null)
 					continue;
 
-				foreach (char c in value)
-				{
-					if (c < ' ' || c == '=' || c == ';' || c > '~')
-					{
-						encNeeded = true;
-						foreach (byte b in VcardEncoding.GetBytes(new[] { c }))
-						{
-							tmp.Append("=");
-							tmp.Append(((int)b).ToString("X").PadLeft(2, '0'));
-						}
-					}
-					else
-					{
-						tmp.Append(c);
-					}
-				}
+                tmp.Append(EncodingUtils.EncodeQuotedPrintable(value, VcardEncoding, ref encNeeded));
 			}
 
 			sb.Append(key);
