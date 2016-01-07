@@ -24,10 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace NbuExplorer
 {
@@ -58,6 +56,7 @@ namespace NbuExplorer
 			this.tsPreview.Image = Properties.Resources.icon_view_bottom.ToBitmap();
 			this.tsLargeIcons.Image = Properties.Resources.icon_view_multicolumn.ToBitmap();
 			this.tsDetails.Image = Properties.Resources.icon_view_detailed.ToBitmap();
+            this.tsRemoveMessages.Image = Properties.Resources.icon_remove_items.ToBitmap();
 			this.exportSelectedFilesToolStripMenuItem.Image = Properties.Resources.icon_document_save.ToBitmap();
 			this.exportSelectedFilesToolStripMenuItem1.Image = Properties.Resources.icon_document_save.ToBitmap();
 			this.exportSelectedFolderToolStripMenuItem.Image = Properties.Resources.icon_save_all.ToBitmap();
@@ -1089,110 +1088,40 @@ namespace NbuExplorer
 				return;
 			}
 
-			SaveFileDialog sfd = new SaveFileDialog();
-			sfd.Filter = "Plain text file (*.txt)|*.txt|Comma-separated values (*.csv)|*.csv|Android 'SMS Backup & Restore' XML format|*.xml|All messages to XML file (*.xml)|*.xml";
-			if (sfd.ShowDialog() == DialogResult.OK)
-			{
-				try
-				{
-					if (sfd.FilterIndex == 4) // xml format - all messages
-					{
-						DataSetNbuExplorer.DefaultMessageTable.boxColumn.ColumnMapping = MappingType.Attribute;
-						DataSetNbuExplorer.DefaultMessageTable.WriteXml(sfd.FileName);
-					}
-					else if (sfd.FilterIndex == 3) // 'SMS Backup & Restore' xml format
-					{
-						string fileName = sfd.FileName;
-						ExportForAndroid(fileName, msgsToExport);
-					}
-					else
-					{
-						// text formats (txt and csv)
-						StreamWriter sw = null;
-						bool formatCsv = (sfd.FilterIndex == 2);
-						System.Text.Encoding enc = formatCsv ? System.Text.Encoding.Default : System.Text.Encoding.UTF8;
-						using (sw = new StreamWriter(sfd.FileName, false, enc))
-						{
-							foreach (var row in msgsToExport)
-							{
-								writeMessageInTextFormat(sw, row, formatCsv);
-							}
-							sw.Close();
-						}
-					}
-				}
-				catch (Exception exc)
-				{
-					MessageBox.Show(exc.Message, exc.Source, MessageBoxButtons.OK, MessageBoxIcon.Error);
-				}
-			}
-		}
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "Plain text file (*.txt)|*.txt|Comma-separated values (*.csv)|*.csv|Android 'SMS Backup & Restore' XML format|*.xml|All messages to XML file (*.xml)|*.xml|Windows Phone Message Backup (*.vmsg)|*.vmsg";
+                if (sfd.ShowDialog() != DialogResult.OK)
+                    return;
 
-		private static void ExportForAndroid(string fileName, List<DataSetNbuExplorer.MessageRow> rows)
-		{
-			var culture = CultureInfo.GetCultureInfo("en-US");
-			XmlWriterSettings sett = new XmlWriterSettings
-			{
-				IndentChars = "  ",
-				Indent = true
-			};
-			using (XmlWriter xw = XmlWriter.Create(fileName, sett))
-			{
-				xw.WriteProcessingInstruction("xml", "version='1.0' encoding='UTF-8' standalone='yes' ");
-				xw.WriteProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"sms.xsl\"");
-				xw.WriteStartElement("smses");
-				xw.WriteAttributeString("count", rows.Count.ToString());
-				foreach (var mr in rows)
-				{
-					xw.WriteStartElement("sms");
-					xw.WriteAttributeString("protocol", "0");
-					xw.WriteAttributeString("address", string.IsNullOrEmpty(mr.number) ? "unknown" : mr.number);
-					xw.WriteAttributeString("date", mr.SbrTime.ToString());
-					xw.WriteAttributeString("type", mr.SbrType.ToString());
-					xw.WriteAttributeString("subject", "null");
-					xw.WriteAttributeString("body", XmlHelper.CleanStringForXml(mr.messagetext));
-					xw.WriteAttributeString("toa", "null");
-					xw.WriteAttributeString("sc_toa", "null");
-					xw.WriteAttributeString("service_center", "null");
-					xw.WriteAttributeString("read", "1");
-					xw.WriteAttributeString("status", "-1");
-					xw.WriteAttributeString("locked", "0");
-					xw.WriteAttributeString("readable_date", mr.IstimeNull() ? "" : mr.time.ToString("MMM d, yyyy h:mm:ss tt", culture));
-					xw.WriteAttributeString("contact_name", mr.name);
-					xw.WriteEndElement();
-				}
-				xw.Close();
-			}
-		}
-
-		private static void writeMessageInTextFormat(StreamWriter sw, DataSetNbuExplorer.MessageRow mr, bool formatCsv)
-		{
-			string msgdirection = "";
-			switch (mr.box)
-			{
-				case "I": msgdirection = "from"; break;
-				case "O": msgdirection = "to"; break;
-			}
-
-			if (formatCsv)
-			{
-				sw.WriteLine(string.Format("{0};{1};{2};\"{3}\";\"{4}\"",
-					mr.IstimeNull() ? "" : mr.time.ToString(),
-					msgdirection,
-					mr.number,
-					(mr.name == mr.number) ? "" : mr.name.Replace("\"", "\"\""),
-					mr.messagetext.Replace("\"", "\"\"")
-					));
-			}
-			else
-			{
-				if (!mr.IstimeNull()) sw.Write(mr.time.ToString() + " ");
-				sw.Write(string.Format("{0} {1}", msgdirection, mr.number).TrimStart());
-				if (mr.name != mr.number) sw.Write(" (" + mr.name + ")");
-				if (!mr.IsnumberNull()) sw.WriteLine(":");
-				sw.WriteLine(mr.messagetext.TrimEnd());
-				sw.WriteLine();
-			}
+                try
+                {
+                    if (sfd.FilterIndex == 4) // xml format - all messages
+                    {
+                        DataSetNbuExplorer.DefaultMessageTable.boxColumn.ColumnMapping = MappingType.Attribute;
+                        DataSetNbuExplorer.DefaultMessageTable.WriteXml(sfd.FileName);
+                    }
+                    else if (sfd.FilterIndex == 3) // 'SMS Backup & Restore' xml format
+                    {                        
+                        MessageExporter.ExportForAndroid(sfd.FileName, msgsToExport);
+                    }
+                    else if (sfd.FilterIndex == 5) // vmsg
+                    {
+                        MessageExporter.ExportForWindowsPhone(sfd.FileName, msgsToExport);
+                    }
+                    else
+                    {
+                        // text formats (txt and csv)
+                        bool formatCsv = (sfd.FilterIndex == 2);
+                        MessageExporter.ExportTextFile(sfd.FileName, formatCsv, msgsToExport);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show(exc.Message, exc.Source, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }                
+            
 		}
 
 		private void listViewFiles_MouseDown(object sender, MouseEventArgs e)
@@ -1236,5 +1165,19 @@ namespace NbuExplorer
 			Message.RecalculateUtcToLocal = enabled;
 			Vcard.RecalculateUtcToLocal = enabled;
 		}
+
+        private void tsRemoveMessages_Click(object sender, EventArgs e)
+        {
+            DataGridViewRow[] array = new DataGridViewRow[dataGridViewMessages.SelectedRows.Count];
+            dataGridViewMessages.SelectedRows.CopyTo(array, 0);
+
+            foreach (DataGridViewRow row in array)
+            {
+                if (!row.IsNewRow)
+                {
+                    dataGridViewMessages.Rows.Remove(row);
+                }
+            }
+        }
 	}
 }

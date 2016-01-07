@@ -75,7 +75,6 @@
     <Compile Include="cdbParsing\DbShell.cs" />
     <Compile Include="DataSetNbuExplorer.cs">
       <DependentUpon>DataSetNbuExplorer.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DataSetNbuExplorer.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -83,6 +82,8 @@
       <DependentUpon>DataSetNbuExplorer.xsd</DependentUpon>
     </Compile>
     <Compile Include="DragFile.cs" />
+    <Compile Include="EncodingUtils.cs" />
+    <Compile Include="MessageExporter.cs" />
     <Compile Include="ExtractIcon.cs" />
     <Compile Include="FileInfoZip.cs" />
     <Compile Include="Message.cs" />
@@ -309,6 +310,7 @@
     <Content Include="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\remove_items.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
