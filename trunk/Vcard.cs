@@ -57,9 +57,16 @@ namespace NbuExplorer
 		}
 
 		public string MessageBody
-		{
-			get { return rawData.Substring(msgBodyStart, msgBodyLength); }
-		}
+        {
+            get
+            {
+                if (!msgFound && attrs.ContainsKey("Subject"))
+                {
+                    return attrs["Subject"];
+                }
+                return rawData.Substring(msgBodyStart, msgBodyLength);
+            }
+        }
 
 		public DateTime MessageTime
 		{
@@ -84,19 +91,31 @@ namespace NbuExplorer
 		{
 			get
 			{
-				if (this["X-IRMC-STATUS"].ToUpper() == "DRAFT") return "U";
-				else switch (this["X-MESSAGE-TYPE"].ToUpper())
-					{
-						case "DELIVER": return "I";
-						case "SUBMIT": return "O";
-						default: switch (this["X-IRMC-BOX"].ToUpper())
-							{
-								case "INBOX": return "I";
-								case "SENT": return "O";
-								default: return "U";
-							}
-					}
-			}
+                if (this["X-IRMC-STATUS"].ToUpper() == "DRAFT")
+                {
+                    return "U";
+                }
+
+                switch (this["X-MESSAGE-TYPE"].ToUpper())
+                {
+                    case "DELIVER": return "I";
+                    case "SUBMIT": return "O";
+                }
+
+                switch (this["X-IRMC-BOX"].ToUpper())
+                {
+                    case "INBOX": return "I";
+                    case "SENT": return "O";
+                }
+
+                switch (this["X-BOX"].ToUpper())
+                {
+                    case "INBOX": return "I";
+                    case "SENDBOX": return "O";
+                }
+
+                return "U";
+            }
 		}
 
 		public string[] Keys
