@@ -59,8 +59,9 @@ END:VMSG
                         sw.WriteLine(string.Format("Date:{0:yyyy}/{0:MM}/{0:dd} {0:hh}:{0:mm}:{0:ss}", mr.time));
                     }
 
-                    bool encNeeded = false;
-                    string encodedText = EncodingUtils.EncodeQuotedPrintable(mr.messagetext, enc, ref encNeeded, 76).ToString();
+                    const int lineLimit = 76;
+                    bool encNeeded = mr.messagetext.Length > lineLimit;
+                    string encodedText = EncodingUtils.EncodeQuotedPrintable(mr.messagetext, enc, ref encNeeded, lineLimit).ToString();
 
                     sw.Write("Subject");
                     if (encNeeded) sw.Write(";ENCODING=QUOTED-PRINTABLE;CHARSET=UTF-8");

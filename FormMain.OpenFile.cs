@@ -944,24 +944,16 @@ namespace NbuExplorer
 							if (Pattern.Msg.Step((byte)current, fs.Position))
 							{
 								Vcard msg = new Vcard(Pattern.Msg.GetCaptureAsString(fs));
-								string box = msg["X-MESSAGE-TYPE"];
-								if (box.Length == 0) box = msg["X-IRMC-BOX"];
-								files = findOrCreateFileInfoList(NokiaConstants.ptMessages + "\\" + box);
-								filename = numToName(files.Count + 1);
-								try
-								{
-									filename = msg.PhoneNumbers[0];
-									filename = DataSetNbuExplorer.FindPhoneBookEntry(filename).name;
-								}
-								catch { }
-								files.Add(new FileInfo(currentFileName, filename + ".vmg", Pattern.Msg.StartIndex, Pattern.Msg.Length, msg.MessageTime));
-								StreamUtils.Counter += Pattern.Msg.Length;
-								addLine(numToProgressAndAddr(Pattern.Msg.StartIndex, fs.Length) + "\tmessage: " + filename);
-
-								DataSetNbuExplorer.AddMessageFromVmg(msg);
+                                ProcessVmsg(Pattern.Msg, msg, currentFileName, fs);
 							}
 
-							if (Pattern.Msg.Active) continue;
+                            if (Pattern.Msg2.Step((byte)current, fs.Position))
+                            {
+                                Vcard msg = new Vcard(Pattern.Msg2.GetCaptureAsString(fs));
+                                ProcessVmsg(Pattern.Msg2, msg, currentFileName, fs);
+                            }
+
+                            if (Pattern.Msg.Active || Pattern.Msg2.Active) continue;
 
 							if (Pattern.Contact.Step((byte)current, fs.Position))
 							{
@@ -1021,7 +1013,26 @@ namespace NbuExplorer
 			}
 		}
 
-		private void parseFolderZip(string currentFileName, ZipInputStream zi, long start, string sectName)
+        private void ProcessVmsg(Pattern pattern, Vcard msg, string currentFileName, Stream fs)
+        {
+            string box = msg["X-MESSAGE-TYPE"];
+            if (box.Length == 0) box = msg["X-IRMC-BOX"];
+            var files = findOrCreateFileInfoList(NokiaConstants.ptMessages + "\\" + box);
+            var filename = numToName(files.Count + 1);
+            try
+            {
+                filename = msg.PhoneNumbers[0];
+                filename = DataSetNbuExplorer.FindPhoneBookEntry(filename).name;
+            }
+            catch { }
+            files.Add(new FileInfo(currentFileName, filename + ".vmg", pattern.StartIndex, pattern.Length, msg.MessageTime));
+            StreamUtils.Counter += Pattern.Msg.Length;
+            addLine(numToProgressAndAddr(Pattern.Msg.StartIndex, fs.Length) + "\tmessage: " + filename);
+
+            DataSetNbuExplorer.AddMessageFromVmg(msg);
+        }
+
+        private void parseFolderZip(string currentFileName, ZipInputStream zi, long start, string sectName)
 		{
 			ZipEntry ze;
 			int index = 0;

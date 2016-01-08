@@ -29,7 +29,8 @@ namespace NbuExplorer
 	{
 
 		public static Pattern Msg = new Pattern("BEGIN:VMSG", "END:VMSG", Encoding.Unicode);
-		public static Pattern Contact = new Pattern("BEGIN:VCARD", "END:VCARD", Encoding.UTF8);
+        public static Pattern Msg2 = new Pattern("BEGIN:VMSG", "END:VMSG", Encoding.UTF8);
+        public static Pattern Contact = new Pattern("BEGIN:VCARD", "END:VCARD", Encoding.UTF8);
 		public static Pattern Calendar = new Pattern("BEGIN:VCALENDAR", "END:VCALENDAR", Encoding.UTF8);
 		public static Pattern Bookmark = new Pattern("BEGIN:VBKM", "END:VBKM", Encoding.UTF8);
 		public static Pattern Jpeg = new Pattern(new byte[] { 0xFF, 0xD8 });
@@ -46,7 +47,8 @@ namespace NbuExplorer
 		public static void ResetAll()
 		{
 			Msg.Reset();
-			Contact.Reset();
+            Msg2.Reset();
+            Contact.Reset();
 			Calendar.Reset();
 			Bookmark.Reset();
 			Jpeg.Reset();

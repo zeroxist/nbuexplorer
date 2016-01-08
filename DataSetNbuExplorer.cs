@@ -172,7 +172,7 @@ namespace NbuExplorer
 
 		public static void AddMessageFromVmg(Vcard vmg)
 		{
-			if (!vmg.MessageFound || string.IsNullOrEmpty(vmg.MessageBody))
+			if (string.IsNullOrEmpty(vmg.MessageBody))
 				return;
 
 			string number, name;
