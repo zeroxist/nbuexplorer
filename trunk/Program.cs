@@ -25,24 +25,29 @@ using System.Windows.Forms;
 
 namespace NbuExplorer
 {
-	static class Program
-	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
-		[STAThread]
-		static void Main(string[] args)
-		{
-			Application.EnableVisualStyles();
-			Application.SetCompatibleTextRenderingDefault(false);
+    static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main(string[] args)
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-			FormMain fm = new FormMain();
-			if (args.Length > 0)
-			{
-				fm.OpenFiles(false, true, args);
-			}
+            FormMain fm = new FormMain();
+            if (args.Length > 0)
+            {
+                fm.OpenFiles(false, true, args);
+            }
+            else
+            {
+                DataSetNbuExplorer.Load();
+                fm.FinalizeFileset();
+            }
 
-			Application.Run(fm);
-		}
-	}
+            Application.Run(fm);
+        }
+    }
 }

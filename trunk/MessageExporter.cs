@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Xml;
+using System.Xml.Schema;
 
 namespace NbuExplorer
 {
@@ -9,25 +13,7 @@ namespace NbuExplorer
     {
         public static void ExportForWindowsPhone(string fileName, List<DataSetNbuExplorer.MessageRow> rows)
         {
-            /* format sample:
-BEGIN:VMSG
-VERSION: 1.1
-BEGIN:VCARD
-TEL:+420777123456
-END:VCARD
-BEGIN:VBODY
-X-BOX:SENDBOX
-X-READ:READ
-X-SIMID:1
-X-LOCKED:UNLOCKED
-X-TYPE:SMS
-Date:2016/01/05 19:03:14
-Subject;ENCODING=QUOTED-PRINTABLE;CHARSET=UTF-8:Ahojda. J=C3=A1 sed=C3=ADm ve vlaku. Mam d=C4=9Blat nakup? T.
-END:VBODY
-END:VMSG
-            */
-
-            System.Text.Encoding enc = System.Text.Encoding.UTF8;
+            Encoding enc = Encoding.UTF8;
             using (StreamWriter sw = new StreamWriter(fileName, false, enc))
             {
                 foreach (var mr in rows)
@@ -50,21 +36,19 @@ END:VMSG
                         sw.WriteLine("X-BOX:INBOX");
                     }
                     sw.WriteLine("X-READ:READ");
-                    sw.WriteLine("X-SIMID:1");
-                    sw.WriteLine("X-LOCKED:UNLOCKED");
                     sw.WriteLine("X-TYPE:SMS");
 
-                    if (!mr.IstimeNull()) // TODO: check 
+                    if (!mr.IstimeNull())
                     {
-                        sw.WriteLine(string.Format("Date:{0:yyyy}/{0:MM}/{0:dd} {0:hh}:{0:mm}:{0:ss}", mr.time));
+                        sw.WriteLine("Date:" + mr.time.ToString("s", CultureInfo.InvariantCulture));
                     }
 
                     const int lineLimit = 76;
-                    bool encNeeded = mr.messagetext.Length > lineLimit;
+                    bool encNeeded = false;
                     string encodedText = EncodingUtils.EncodeQuotedPrintable(mr.messagetext, enc, ref encNeeded, lineLimit).ToString();
 
-                    sw.Write("Subject");
-                    if (encNeeded) sw.Write(";ENCODING=QUOTED-PRINTABLE;CHARSET=UTF-8");
+                    sw.Write("Subject;ENCODING=QUOTED-PRINTABLE");
+                    if (encNeeded) sw.Write(";CHARSET=UTF-8");
                     sw.Write(":");
                     sw.WriteLine(encodedText);
 
@@ -113,7 +97,7 @@ END:VMSG
 
         public static void ExportTextFile(string fileName, bool formatCsv, List<DataSetNbuExplorer.MessageRow> msgsToExport)
         {
-            System.Text.Encoding enc = formatCsv ? System.Text.Encoding.Default : System.Text.Encoding.UTF8;
+            Encoding enc = formatCsv ? Encoding.Default : Encoding.UTF8;
             using (StreamWriter sw = new StreamWriter(fileName, false, enc))
             {
                 foreach (var row in msgsToExport)
@@ -151,6 +135,121 @@ END:VMSG
                 if (!mr.IsnumberNull()) sw.WriteLine(":");
                 sw.WriteLine(mr.messagetext.TrimEnd());
                 sw.WriteLine();
+            }
+        }
+
+        internal static void ExportForWindowsPhoneXmlPlusHash(string fileName, List<DataSetNbuExplorer.MessageRow> rows)
+        {
+            ExportForWindowsPhoneXml(fileName, rows);
+            CreateHashForWindowsPhoneXml(fileName);
+        }
+
+        private static void CreateHashForWindowsPhoneXml(string fileName)
+        {
+            string fileContent = File.ReadAllText(fileName, Encoding.UTF8);
+
+            //SHA 256
+            SHA256Managed crypt = new SHA256Managed();
+            byte[] sha256 = crypt.ComputeHash(Encoding.UTF8.GetBytes(fileContent), 0, Encoding.UTF8.GetByteCount(fileContent));
+
+            //base64
+            string base64 = Convert.ToBase64String(sha256);
+
+            //AES
+            byte[] encryptedAes = EncryptByAes(base64);
+
+            //base64
+            string finalHash = Convert.ToBase64String(encryptedAes);
+
+            //flush to file
+            string hashFileName = Path.ChangeExtension(fileName, ".hsh");
+            File.WriteAllText(hashFileName, finalHash);
+        }
+
+        private static byte[] EncryptByAes(string plainText)
+        {
+            using (RijndaelManaged cryptEngine = new RijndaelManaged())
+            {
+                cryptEngine.Key = new Guid("{D86B2FDE-C318-4DD2-8C9E-EB3F1A244DF8}").ToByteArray();
+                cryptEngine.IV = new Guid("{089B6AEC-E81D-49AC-91DF-AD071418E7A3}").ToByteArray();
+                cryptEngine.Mode = CipherMode.CBC;
+                cryptEngine.Padding = PaddingMode.PKCS7;
+
+                // Create a decrytor to perform the stream transform.
+                using (ICryptoTransform encryptor = cryptEngine.CreateEncryptor(cryptEngine.Key, cryptEngine.IV))
+                {
+                    // Create the streams used for encryption.
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                            {
+                                swEncrypt.Write(plainText);
+                            }
+                            return msEncrypt.ToArray();
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void ExportForWindowsPhoneXml(string fileName, List<DataSetNbuExplorer.MessageRow> rows)
+        {
+            var culture = CultureInfo.InvariantCulture;
+            XmlWriterSettings sett = new XmlWriterSettings
+            {
+                IndentChars = "  ",
+                Indent = false,
+                Encoding = Encoding.UTF8
+            };
+            using (XmlWriter xw = XmlWriter.Create(fileName, sett))
+            {
+                xw.WriteProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
+                xw.WriteStartElement("ArrayOfMessage");
+                xw.WriteAttributeString("xmlns", "xsi", null, XmlSchema.InstanceNamespace);
+                xw.WriteAttributeString("xmlns", "xsd", null, XmlSchema.Namespace);
+
+                foreach (var mr in rows)
+                {
+                    xw.WriteStartElement("Message");
+
+                    bool isIncoming = mr.SbrType == 1;
+                    xw.WriteStartElement("IsIncoming");
+                    xw.WriteString((isIncoming).ToString(culture).ToLowerInvariant());
+                    xw.WriteEndElement();
+
+                    if (isIncoming)
+                    {
+                        xw.WriteStartElement("Sender");
+                    }
+                    else
+                    {
+                        xw.WriteStartElement("Recepients");
+                    }
+                    string theNumber = string.IsNullOrEmpty(mr.number) ? "unknown" : mr.number;
+                    xw.WriteString(theNumber);
+                    xw.WriteEndElement();
+
+                    xw.WriteStartElement("IsRead");
+                    xw.WriteString("true");
+                    xw.WriteEndElement();
+
+
+                    xw.WriteStartElement("LocalTimestamp");
+                    if (!mr.IstimeNull())
+                    {
+                        xw.WriteString(mr.time.ToFileTime().ToString(culture));
+                    }
+                    xw.WriteEndElement();
+
+                    xw.WriteStartElement("Body");
+                    xw.WriteString(XmlHelper.CleanStringForXml(mr.messagetext));
+                    xw.WriteEndElement();
+
+                    xw.WriteFullEndElement();
+                }
+                xw.Close();
             }
         }
     }

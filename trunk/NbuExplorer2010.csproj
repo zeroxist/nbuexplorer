@@ -83,11 +83,50 @@
     </Compile>
     <Compile Include="DragFile.cs" />
     <Compile Include="EncodingUtils.cs" />
+    <Compile Include="GridViewExtensions\DataGridFilterExtender.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GridViewExtensions\FilterableDataGrid.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GridViewExtensions\FilterErrorModes.cs" />
+    <Compile Include="GridViewExtensions\FilterPosition.cs" />
+    <Compile Include="GridViewExtensions\GridFilterCollection.cs" />
+    <Compile Include="GridViewExtensions\GridFilterEventArgs.cs" />
+    <Compile Include="GridViewExtensions\GridFilterEventHandler.cs" />
+    <Compile Include="GridViewExtensions\GridFilterFactories\DefaultGridFilterFactory.cs" />
+    <Compile Include="GridViewExtensions\GridFilterFactories\GridFilterFactoryBase.cs" />
+    <Compile Include="GridViewExtensions\GridFiltersControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GridViewExtensions\GridFilters\BoolGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\DateGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\DateGridFilterControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GridViewExtensions\GridFilters\DistinctValuesGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\EmptyGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\EnumerationGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\EnumerationSources\IEnumerationSource.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\EnumerationSources\IntStringMapEnumerationSource.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\EnumerationSources\TypeEnumerationSource.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\GridFilterBase.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\NullGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\NumericGridFilter.cs" />
+    <Compile Include="GridViewExtensions\GridFilters\NumericGridFilterControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GridViewExtensions\GridFilters\TextGridFilter.cs" />
+    <Compile Include="GridViewExtensions\IGridFilter.cs" />
+    <Compile Include="GridViewExtensions\IGridFilterFactory.cs" />
+    <Compile Include="GridViewExtensions\LogicalOperators.cs" />
+    <Compile Include="GridViewExtensions\RefreshMode.cs" />
     <Compile Include="MessageExporter.cs" />
     <Compile Include="ExtractIcon.cs" />
     <Compile Include="FileInfoZip.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="QutedTextDecoder.cs">
+    <Compile Include="Preferences.cs" />
+    <Compile Include="QuotedTextDecoder.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="FormMain.OpenFile.cs">
@@ -161,6 +200,21 @@
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewExtensions\DataGridFilterExtender.resx">
+      <DependentUpon>DataGridFilterExtender.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewExtensions\FilterableDataGrid.resx">
+      <DependentUpon>FilterableDataGrid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewExtensions\GridFiltersControl.resx">
+      <DependentUpon>GridFiltersControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewExtensions\GridFilters\DateGridFilterControl.resx">
+      <DependentUpon>DateGridFilterControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewExtensions\GridFilters\NumericGridFilterControl.resx">
+      <DependentUpon>NumericGridFilterControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MessageBoxWithMemory.resx">
       <DependentUpon>MessageBoxWithMemory.cs</DependentUpon>

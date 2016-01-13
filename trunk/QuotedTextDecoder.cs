@@ -25,36 +25,36 @@ using System.Text.RegularExpressions;
 
 namespace NbuExplorer
 {
-	public static class QutedTextDecoder
-	{
-		private static Encoding enc;
+    public static class QuotedTextDecoder
+    {
+        private static Encoding enc;
 
-		private static Regex rexHexText = new Regex("(=([0-9A-F][0-9A-F]))+");
+        private static Regex rexHexText = new Regex("(=([0-9A-F][0-9A-F]))+");
 
-		private static MatchEvaluator eval = new MatchEvaluator(HexTextReplace);
+        private static MatchEvaluator eval = new MatchEvaluator(HexTextReplace);
 
-		private static string HexTextReplace(Match m)
-		{
-			byte[] buff = new byte[m.Groups[2].Captures.Count];
-			for (int i = 0; i < buff.Length; i++)
-			{
-				buff[i] = (byte)int.Parse(m.Groups[2].Captures[i].Value, System.Globalization.NumberStyles.HexNumber);
-			}
+        private static string HexTextReplace(Match m)
+        {
+            byte[] buff = new byte[m.Groups[2].Captures.Count];
+            for (int i = 0; i < buff.Length; i++)
+            {
+                buff[i] = (byte)int.Parse(m.Groups[2].Captures[i].Value, System.Globalization.NumberStyles.HexNumber);
+            }
 
-			try
-			{
-				return enc.GetString(buff);
-			}
-			catch
-			{
-				return "?";
-			}
-		}
+            try
+            {
+                return enc.GetString(buff);
+            }
+            catch
+            {
+                return "?";
+            }
+        }
 
-		public static string Decode(string encodingName, string input)
-		{
-			enc = Encoding.GetEncoding(encodingName);
-			return rexHexText.Replace(input, eval);
-		}
-	}
+        public static string Decode(string encodingName, string input)
+        {
+            enc = Encoding.GetEncoding(encodingName);
+            return rexHexText.Replace(input, eval);
+        }
+    }
 }
