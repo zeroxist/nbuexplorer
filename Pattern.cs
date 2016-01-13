@@ -25,132 +25,132 @@ using System.Text;
 
 namespace NbuExplorer
 {
-	public class Pattern
-	{
+    public class Pattern
+    {
 
-		public static Pattern Msg = new Pattern("BEGIN:VMSG", "END:VMSG", Encoding.Unicode);
+        public static Pattern Msg = new Pattern("BEGIN:VMSG", "END:VMSG", Encoding.Unicode);
         public static Pattern Msg2 = new Pattern("BEGIN:VMSG", "END:VMSG", Encoding.UTF8);
         public static Pattern Contact = new Pattern("BEGIN:VCARD", "END:VCARD", Encoding.UTF8);
-		public static Pattern Calendar = new Pattern("BEGIN:VCALENDAR", "END:VCALENDAR", Encoding.UTF8);
-		public static Pattern Bookmark = new Pattern("BEGIN:VBKM", "END:VBKM", Encoding.UTF8);
-		public static Pattern Jpeg = new Pattern(new byte[] { 0xFF, 0xD8 });
-		public static Pattern Media = new Pattern(new byte[] { 0x66, 0x74, 0x79, 0x70 });
-		public static Pattern PkZip = new Pattern(new byte[] { 0x50, 0x4B, 0x03, 0x04 }, new byte[] { 0x50, 0x4B, 0x05, 0x06 });
+        public static Pattern Calendar = new Pattern("BEGIN:VCALENDAR", "END:VCALENDAR", Encoding.UTF8);
+        public static Pattern Bookmark = new Pattern("BEGIN:VBKM", "END:VBKM", Encoding.UTF8);
+        public static Pattern Jpeg = new Pattern(new byte[] { 0xFF, 0xD8 });
+        public static Pattern Media = new Pattern(new byte[] { 0x66, 0x74, 0x79, 0x70 });
+        public static Pattern PkZip = new Pattern(new byte[] { 0x50, 0x4B, 0x03, 0x04 }, new byte[] { 0x50, 0x4B, 0x05, 0x06 });
 
-		public static byte[] JpegEndSeq = new byte[] { 0xFF, 0xD9 };
+        public static byte[] JpegEndSeq = new byte[] { 0xFF, 0xD9 };
 
-		private Encoding enc;
-		private byte[] startSeq;
-		private byte[] endSeq;
-		private int index = 0;
+        private Encoding enc;
+        private byte[] startSeq;
+        private byte[] endSeq;
+        private int index = 0;
 
-		public static void ResetAll()
-		{
-			Msg.Reset();
+        public static void ResetAll()
+        {
+            Msg.Reset();
             Msg2.Reset();
             Contact.Reset();
-			Calendar.Reset();
-			Bookmark.Reset();
-			Jpeg.Reset();
-			Media.Reset();
-			PkZip.Reset();
-		}
+            Calendar.Reset();
+            Bookmark.Reset();
+            Jpeg.Reset();
+            Media.Reset();
+            PkZip.Reset();
+        }
 
-		public Pattern(string start, string end, Encoding encoding)
-		{
-			enc = encoding;
-			startSeq = enc.GetBytes(start);
-			endSeq = enc.GetBytes(end);
-		}
+        public Pattern(string start, string end, Encoding encoding)
+        {
+            enc = encoding;
+            startSeq = enc.GetBytes(start);
+            endSeq = enc.GetBytes(end);
+        }
 
-		public Pattern(byte[] start)
-			: this(start, new byte[] { })
-		{
-		}
+        public Pattern(byte[] start)
+            : this(start, new byte[] { })
+        {
+        }
 
-		public Pattern(byte[] start, byte[] end)
-		{
-			enc = Encoding.Unicode;
-			startSeq = start;
-			endSeq = end;
-		}
+        public Pattern(byte[] start, byte[] end)
+        {
+            enc = Encoding.Unicode;
+            startSeq = start;
+            endSeq = end;
+        }
 
-		private long startIndex = 0;
-		public long StartIndex
-		{
-			get { return startIndex; }
-		}
+        private long startIndex = 0;
+        public long StartIndex
+        {
+            get { return startIndex; }
+        }
 
-		private long length;
-		public long Length
-		{
-			get { return length; }
-		}
+        private long length;
+        public long Length
+        {
+            get { return length; }
+        }
 
-		private bool active = false;
-		public bool Active
-		{
-			get { return active; }
-		}
+        private bool active = false;
+        public bool Active
+        {
+            get { return active; }
+        }
 
-		public bool Step(byte input, long pos)
-		{
-			if (active)
-			{
-				if (endSeq[index] == input)
-				{
-					index++;
-					if (index == endSeq.Length)
-					{
-						length = pos - startIndex;
-						index = 0;
-						active = false;
-						return true;
-					}
-				}
-				else index = 0;
-			}
-			else
-			{
-				if (startSeq[index] == input)
-				{
-					index++;
-					if (index == startSeq.Length)
-					{
-						index = 0;
-						startIndex = pos - startSeq.Length;
-						if (endSeq.Length == 0)
-						{
-							length = startSeq.Length;
-							return true;
-						}
-						active = true;
-					}
-				}
-				else index = 0;
-			}
+        public bool Step(byte input, long pos)
+        {
+            if (active)
+            {
+                if (endSeq[index] == input)
+                {
+                    index++;
+                    if (index == endSeq.Length)
+                    {
+                        length = pos - startIndex;
+                        index = 0;
+                        active = false;
+                        return true;
+                    }
+                }
+                else index = 0;
+            }
+            else
+            {
+                if (startSeq[index] == input)
+                {
+                    index++;
+                    if (index == startSeq.Length)
+                    {
+                        index = 0;
+                        startIndex = pos - startSeq.Length;
+                        if (endSeq.Length == 0)
+                        {
+                            length = startSeq.Length;
+                            return true;
+                        }
+                        active = true;
+                    }
+                }
+                else index = 0;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		public byte[] GetCapture(Stream s)
-		{
-			byte[] buff = new byte[(int)length];
-			s.Seek(startIndex, SeekOrigin.Begin);
-			s.Read(buff, 0, buff.Length);
-			return buff;
-		}
+        public byte[] GetCapture(Stream s)
+        {
+            byte[] buff = new byte[(int)length];
+            s.Seek(startIndex, SeekOrigin.Begin);
+            s.Read(buff, 0, buff.Length);
+            return buff;
+        }
 
-		public string GetCaptureAsString(Stream s)
-		{
-			return enc.GetString(GetCapture(s));
-		}
+        public string GetCaptureAsString(Stream s)
+        {
+            return enc.GetString(GetCapture(s));
+        }
 
-		private void Reset()
-		{
-			active = false;
-			index = 0;
-			startIndex = 0;
-		}
-	}
+        private void Reset()
+        {
+            active = false;
+            index = 0;
+            startIndex = 0;
+        }
+    }
 }

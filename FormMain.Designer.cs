@@ -22,7 +22,7 @@
 
 		#region Windows Form Designer generated code
 
-		/// <summary>
+	    /// <summary>
 		/// Required method for Designer support - do not modify
 		/// the contents of this method with the code editor.
 		/// </summary>
@@ -30,13 +30,10 @@
 		{
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Inbox");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Outbox");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Others");
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Inbox");
+            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Outbox");
+            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Others");
+            NbuExplorer.GridViewExtensions.GridFilterFactories.DefaultGridFilterFactory defaultGridFilterFactory2 = new NbuExplorer.GridViewExtensions.GridFilterFactories.DefaultGridFilterFactory();
             this.textBoxLog = new System.Windows.Forms.TextBox();
             this.menuStripMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,6 +62,8 @@
             this.mP4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.vCardsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zIPArchivesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveDataOnExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showMessageSizeColumnToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -108,11 +107,7 @@
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.treeViewMsgFilter = new System.Windows.Forms.TreeView();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
-            this.dataGridViewMessages = new System.Windows.Forms.DataGridView();
-            this.colMessageTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colMessageNumber = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colMessageName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colMessageText = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.filterableGridMessages = new NbuExplorer.GridViewExtensions.FilterableDataGrid();
             this.textBoxMessage = new System.Windows.Forms.TextBox();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.tsExportMessages = new System.Windows.Forms.ToolStripButton();
@@ -142,7 +137,6 @@
             this.splitContainer4.Panel1.SuspendLayout();
             this.splitContainer4.Panel2.SuspendLayout();
             this.splitContainer4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMessages)).BeginInit();
             this.toolStrip2.SuspendLayout();
             this.tabPageLog.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -270,7 +264,9 @@
             this.messageExportToolStripMenuItem,
             this.recalculateUTCTimeToLocalToolStripMenuItem,
             this.allowDragDropToolStripMenuItem,
-            this.bruteforceSourcesToolStripMenuItem});
+            this.bruteforceSourcesToolStripMenuItem,
+            this.saveDataOnExitToolStripMenuItem,
+            this.showMessageSizeColumnToolStripMenuItem});
             this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(80, 20);
             this.preferencesToolStripMenuItem.Text = "Preferences";
@@ -283,7 +279,7 @@
             this.parseMsgSymbianToolStripMenuItem,
             this.parseMsgBinToolStripMenuItem});
             this.messageSourcesToUseToolStripMenuItem.Name = "messageSourcesToUseToolStripMenuItem";
-            this.messageSourcesToUseToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.messageSourcesToUseToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.messageSourcesToUseToolStripMenuItem.Text = "Message sources";
             // 
             // parseMsgVMGToolStripMenuItem
@@ -294,6 +290,7 @@
             this.parseMsgVMGToolStripMenuItem.Name = "parseMsgVMGToolStripMenuItem";
             this.parseMsgVMGToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.parseMsgVMGToolStripMenuItem.Text = "VMG files";
+            this.parseMsgVMGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // parseMsgPredefToolStripMenuItem
             // 
@@ -303,6 +300,7 @@
             this.parseMsgPredefToolStripMenuItem.Name = "parseMsgPredefToolStripMenuItem";
             this.parseMsgPredefToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.parseMsgPredefToolStripMenuItem.Text = "predefmessages folder";
+            this.parseMsgPredefToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // parseMsgSymbianToolStripMenuItem
             // 
@@ -312,6 +310,7 @@
             this.parseMsgSymbianToolStripMenuItem.Name = "parseMsgSymbianToolStripMenuItem";
             this.parseMsgSymbianToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.parseMsgSymbianToolStripMenuItem.Text = "Symbian message storage";
+            this.parseMsgSymbianToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // parseMsgBinToolStripMenuItem
             // 
@@ -321,13 +320,14 @@
             this.parseMsgBinToolStripMenuItem.Name = "parseMsgBinToolStripMenuItem";
             this.parseMsgBinToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.parseMsgBinToolStripMenuItem.Text = "Binary encoded messages";
+            this.parseMsgBinToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // messageExportToolStripMenuItem
             // 
             this.messageExportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exportOnlySelectedMessagesToolStripMenuItem});
             this.messageExportToolStripMenuItem.Name = "messageExportToolStripMenuItem";
-            this.messageExportToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.messageExportToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.messageExportToolStripMenuItem.Text = "Message export";
             // 
             // exportOnlySelectedMessagesToolStripMenuItem
@@ -336,6 +336,7 @@
             this.exportOnlySelectedMessagesToolStripMenuItem.Name = "exportOnlySelectedMessagesToolStripMenuItem";
             this.exportOnlySelectedMessagesToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.exportOnlySelectedMessagesToolStripMenuItem.Text = "Export only selected";
+            this.exportOnlySelectedMessagesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // recalculateUTCTimeToLocalToolStripMenuItem
             // 
@@ -343,16 +344,18 @@
             this.recalculateUTCTimeToLocalToolStripMenuItem.CheckOnClick = true;
             this.recalculateUTCTimeToLocalToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.recalculateUTCTimeToLocalToolStripMenuItem.Name = "recalculateUTCTimeToLocalToolStripMenuItem";
-            this.recalculateUTCTimeToLocalToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.recalculateUTCTimeToLocalToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.recalculateUTCTimeToLocalToolStripMenuItem.Text = "Recalculate UTC time to local";
+            this.recalculateUTCTimeToLocalToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             this.recalculateUTCTimeToLocalToolStripMenuItem.Click += new System.EventHandler(this.recalculateUTCTimeToLocalToolStripMenuItem_Click);
             // 
             // allowDragDropToolStripMenuItem
             // 
             this.allowDragDropToolStripMenuItem.CheckOnClick = true;
             this.allowDragDropToolStripMenuItem.Name = "allowDragDropToolStripMenuItem";
-            this.allowDragDropToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.allowDragDropToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.allowDragDropToolStripMenuItem.Text = "Allow Drag&&Drop";
+            this.allowDragDropToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // bruteforceSourcesToolStripMenuItem
             // 
@@ -362,7 +365,7 @@
             this.vCardsToolStripMenuItem,
             this.zIPArchivesToolStripMenuItem});
             this.bruteforceSourcesToolStripMenuItem.Name = "bruteforceSourcesToolStripMenuItem";
-            this.bruteforceSourcesToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            this.bruteforceSourcesToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.bruteforceSourcesToolStripMenuItem.Text = "Bruteforce scan";
             // 
             // jPGToolStripMenuItem
@@ -371,8 +374,9 @@
             this.jPGToolStripMenuItem.CheckOnClick = true;
             this.jPGToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.jPGToolStripMenuItem.Name = "jPGToolStripMenuItem";
-            this.jPGToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.jPGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.jPGToolStripMenuItem.Text = "JPG";
+            this.jPGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // mP4ToolStripMenuItem
             // 
@@ -380,8 +384,9 @@
             this.mP4ToolStripMenuItem.CheckOnClick = true;
             this.mP4ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.mP4ToolStripMenuItem.Name = "mP4ToolStripMenuItem";
-            this.mP4ToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.mP4ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.mP4ToolStripMenuItem.Text = "MP4";
+            this.mP4ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // vCardsToolStripMenuItem
             // 
@@ -389,8 +394,9 @@
             this.vCardsToolStripMenuItem.CheckOnClick = true;
             this.vCardsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.vCardsToolStripMenuItem.Name = "vCardsToolStripMenuItem";
-            this.vCardsToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.vCardsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.vCardsToolStripMenuItem.Text = "vCards";
+            this.vCardsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // zIPArchivesToolStripMenuItem
             // 
@@ -398,8 +404,25 @@
             this.zIPArchivesToolStripMenuItem.CheckOnClick = true;
             this.zIPArchivesToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.zIPArchivesToolStripMenuItem.Name = "zIPArchivesToolStripMenuItem";
-            this.zIPArchivesToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.zIPArchivesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.zIPArchivesToolStripMenuItem.Text = "ZIP archives";
+            this.zIPArchivesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
+            // 
+            // saveDataOnExitToolStripMenuItem
+            // 
+            this.saveDataOnExitToolStripMenuItem.CheckOnClick = true;
+            this.saveDataOnExitToolStripMenuItem.Name = "saveDataOnExitToolStripMenuItem";
+            this.saveDataOnExitToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.saveDataOnExitToolStripMenuItem.Text = "Save data on exit";
+            this.saveDataOnExitToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
+            // 
+            // showMessageSizeColumnToolStripMenuItem
+            // 
+            this.showMessageSizeColumnToolStripMenuItem.CheckOnClick = true;
+            this.showMessageSizeColumnToolStripMenuItem.Name = "showMessageSizeColumnToolStripMenuItem";
+            this.showMessageSizeColumnToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.showMessageSizeColumnToolStripMenuItem.Text = "Show message size column";
+            this.showMessageSizeColumnToolStripMenuItem.CheckedChanged += new System.EventHandler(this.preferenceChanged);
             // 
             // helpToolStripMenuItem
             // 
@@ -809,19 +832,19 @@
             this.treeViewMsgFilter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeViewMsgFilter.Location = new System.Drawing.Point(0, 0);
             this.treeViewMsgFilter.Name = "treeViewMsgFilter";
-            treeNode1.Checked = true;
-            treeNode1.Name = "NodeInbox";
-            treeNode1.Text = "Inbox";
-            treeNode2.Checked = true;
-            treeNode2.Name = "NodeOutbox";
-            treeNode2.Text = "Outbox";
-            treeNode3.Checked = true;
-            treeNode3.Name = "NodeOthers";
-            treeNode3.Text = "Others";
+            treeNode4.Checked = true;
+            treeNode4.Name = "NodeInbox";
+            treeNode4.Text = "Inbox";
+            treeNode5.Checked = true;
+            treeNode5.Name = "NodeOutbox";
+            treeNode5.Text = "Outbox";
+            treeNode6.Checked = true;
+            treeNode6.Name = "NodeOthers";
+            treeNode6.Text = "Others";
             this.treeViewMsgFilter.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
+            treeNode4,
+            treeNode5,
+            treeNode6});
             this.treeViewMsgFilter.Size = new System.Drawing.Size(159, 322);
             this.treeViewMsgFilter.TabIndex = 0;
             this.treeViewMsgFilter.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.treeViewMsgFilter_AfterCheck);
@@ -835,7 +858,7 @@
             // 
             // splitContainer4.Panel1
             // 
-            this.splitContainer4.Panel1.Controls.Add(this.dataGridViewMessages);
+            this.splitContainer4.Panel1.Controls.Add(this.filterableGridMessages);
             // 
             // splitContainer4.Panel2
             // 
@@ -844,85 +867,25 @@
             this.splitContainer4.SplitterDistance = 164;
             this.splitContainer4.TabIndex = 1;
             // 
-            // dataGridViewMessages
+            // filterableGridMessages
             // 
-            this.dataGridViewMessages.AllowUserToAddRows = false;
-            this.dataGridViewMessages.AllowUserToDeleteRows = false;
-            this.dataGridViewMessages.AllowUserToOrderColumns = true;
-            this.dataGridViewMessages.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewMessages.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridViewMessages.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewMessages.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colMessageTime,
-            this.colMessageNumber,
-            this.colMessageName,
-            this.colMessageText});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridViewMessages.DefaultCellStyle = dataGridViewCellStyle3;
-            this.dataGridViewMessages.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewMessages.Location = new System.Drawing.Point(0, 0);
-            this.dataGridViewMessages.Name = "dataGridViewMessages";
-            this.dataGridViewMessages.ReadOnly = true;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridViewMessages.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
-            this.dataGridViewMessages.RowHeadersVisible = false;
-            this.dataGridViewMessages.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewMessages.Size = new System.Drawing.Size(390, 164);
-            this.dataGridViewMessages.TabIndex = 0;
-            this.dataGridViewMessages.RowPrePaint += new System.Windows.Forms.DataGridViewRowPrePaintEventHandler(this.dataGridViewMessages_RowPrePaint);
-            this.dataGridViewMessages.SelectionChanged += new System.EventHandler(this.dataGridViewMessages_SelectionChanged);
-            // 
-            // colMessageTime
-            // 
-            this.colMessageTime.DataPropertyName = "time";
-            dataGridViewCellStyle2.Format = "dd.MM.yyyy HH:mm:ss";
-            dataGridViewCellStyle2.NullValue = "Unknown";
-            this.colMessageTime.DefaultCellStyle = dataGridViewCellStyle2;
-            this.colMessageTime.HeaderText = "Time";
-            this.colMessageTime.Name = "colMessageTime";
-            this.colMessageTime.ReadOnly = true;
-            this.colMessageTime.Width = 120;
-            // 
-            // colMessageNumber
-            // 
-            this.colMessageNumber.DataPropertyName = "number";
-            this.colMessageNumber.HeaderText = "Number";
-            this.colMessageNumber.Name = "colMessageNumber";
-            this.colMessageNumber.ReadOnly = true;
-            // 
-            // colMessageName
-            // 
-            this.colMessageName.DataPropertyName = "name";
-            this.colMessageName.HeaderText = "Name";
-            this.colMessageName.Name = "colMessageName";
-            this.colMessageName.ReadOnly = true;
-            // 
-            // colMessageText
-            // 
-            this.colMessageText.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.colMessageText.DataPropertyName = "messageText";
-            this.colMessageText.HeaderText = "Text";
-            this.colMessageText.Name = "colMessageText";
-            this.colMessageText.ReadOnly = true;
+            this.filterableGridMessages.AutoSize = true;
+            this.filterableGridMessages.CustomFilter = null;
+            this.filterableGridMessages.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.filterableGridMessages.FilterBoxPosition = NbuExplorer.GridViewExtensions.FilterPosition.Bottom;
+            defaultGridFilterFactory2.CreateDistinctGridFilters = false;
+            defaultGridFilterFactory2.DefaultGridFilterType = typeof(NbuExplorer.GridViewExtensions.GridFilters.TextGridFilter);
+            defaultGridFilterFactory2.DefaultShowDateInBetweenOperator = false;
+            defaultGridFilterFactory2.DefaultShowNumericInBetweenOperator = false;
+            defaultGridFilterFactory2.HandleEnumerationTypes = true;
+            defaultGridFilterFactory2.MaximumDistinctValues = 20;
+            this.filterableGridMessages.FilterFactory = defaultGridFilterFactory2;
+            this.filterableGridMessages.FilterTextVisible = false;
+            this.filterableGridMessages.Location = new System.Drawing.Point(0, 0);
+            this.filterableGridMessages.Name = "filterableGridMessages";
+            this.filterableGridMessages.Size = new System.Drawing.Size(390, 164);
+            this.filterableGridMessages.TabIndex = 1;
+            this.filterableGridMessages.KeyDown += new System.Windows.Forms.KeyEventHandler(this.filterableGridMessages_KeyDown);
             // 
             // textBoxMessage
             // 
@@ -1020,6 +983,8 @@
             this.MinimumSize = new System.Drawing.Size(320, 240);
             this.Name = "FormMain";
             this.Text = "NbuExplorer";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormMain_FormClosed);
+            this.Shown += new System.EventHandler(this.FormMain_Shown);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.FormMain_DragDrop);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.FormMain_DragOver);
             this.menuStripMain.ResumeLayout(false);
@@ -1045,10 +1010,10 @@
             this.splitContainer3.Panel2.PerformLayout();
             this.splitContainer3.ResumeLayout(false);
             this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel1.PerformLayout();
             this.splitContainer4.Panel2.ResumeLayout(false);
             this.splitContainer4.Panel2.PerformLayout();
             this.splitContainer4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewMessages)).EndInit();
             this.toolStrip2.ResumeLayout(false);
             this.toolStrip2.PerformLayout();
             this.tabPageLog.ResumeLayout(false);
@@ -1062,7 +1027,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox textBoxLog;
+	    private System.Windows.Forms.TextBox textBoxLog;
 		private System.Windows.Forms.MenuStrip menuStripMain;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
@@ -1121,13 +1086,8 @@
 		private System.Windows.Forms.SplitContainer splitContainer3;
 		private System.Windows.Forms.TreeView treeViewMsgFilter;
 		private System.Windows.Forms.SplitContainer splitContainer4;
-		private System.Windows.Forms.DataGridView dataGridViewMessages;
 		private System.Windows.Forms.TextBox textBoxMessage;
 		private System.Windows.Forms.ToolStrip toolStrip2;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colMessageTime;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colMessageNumber;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colMessageName;
-		private System.Windows.Forms.DataGridViewTextBoxColumn colMessageText;
 		private System.Windows.Forms.ToolStripButton tsExportMessages;
 		private System.Windows.Forms.ToolStripLabel toolStripLabelPos;
 		private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
@@ -1147,6 +1107,9 @@
 		private System.Windows.Forms.ToolStripMenuItem vCardsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem zIPArchivesToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton tsRemoveMessages;
-	}
+        private System.Windows.Forms.ToolStripMenuItem saveDataOnExitToolStripMenuItem;
+        private GridViewExtensions.FilterableDataGrid filterableGridMessages;
+        private System.Windows.Forms.ToolStripMenuItem showMessageSizeColumnToolStripMenuItem;
+    }
 }
 

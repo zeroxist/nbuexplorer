@@ -26,37 +26,37 @@ using System.Text.RegularExpressions;
 
 namespace NbuExplorer
 {
-	public class Vcard
-	{
-		public static bool RecalculateUtcToLocal = false;
+    public class Vcard
+    {
+        public static bool RecalculateUtcToLocal = false;
 
-		Dictionary<string, string> attrs = new Dictionary<string, string>();
-		List<string> phoneNumbers = new List<string>();
-		string rawData = "";
-		int msgBodyStart = 0;
-		int msgBodyLength = 0;
-		bool msgFound = false;
+        Dictionary<string, string> attrs = new Dictionary<string, string>();
+        List<string> phoneNumbers = new List<string>();
+        string rawData = "";
+        int msgBodyStart = 0;
+        int msgBodyLength = 0;
+        bool msgFound = false;
 
-		private static Regex rexEnc = new Regex("ENCODING=([^;]+)");
-		private static Regex rexChs = new Regex("CHARSET=([^;]+)");
-		private static Regex rexQuoteEndSpaceBreak = new Regex(@" +=\r\n[\s]*");
-		private static Regex rexQuoteLineBreak = new Regex(@"=\r\n[\s]*");
-		private static Regex rexBase64photo = new Regex(@"PHOTO((;ENCODING=BASE64)|(;TYPE=(?<type>.*?))){1,2}:(?<data>.*?((\r\n\r\n)|(=\r\n)))", RegexOptions.Singleline);
-		private static Regex rexMsgBody = new Regex(@"BEGIN:VBODY\r?\nDate:([0-9.: ]+)\r?\n(.*?)\r?\nEND:VBODY\r?\n", RegexOptions.Singleline);
+        private static Regex rexEnc = new Regex("ENCODING=([^;]+)");
+        private static Regex rexChs = new Regex("CHARSET=([^;]+)");
+        private static Regex rexQuoteEndSpaceBreak = new Regex(@" +=\r\n[\s]*");
+        private static Regex rexQuoteLineBreak = new Regex(@"=\r\n[\s]*");
+        private static Regex rexBase64photo = new Regex(@"PHOTO((;ENCODING=BASE64)|(;TYPE=(?<type>.*?))){1,2}:(?<data>.*?((\r\n\r\n)|(=\r\n)))", RegexOptions.Singleline);
+        private static Regex rexMsgBody = new Regex(@"BEGIN:VBODY\r?\nDate:([0-9.: ]+)\r?\n(.*?)\r?\nEND:VBODY\r?\n", RegexOptions.Singleline);
 
-		byte[] photo = null;
-		public byte[] Photo
-		{
-			get { return photo; }
-		}
+        byte[] photo = null;
+        public byte[] Photo
+        {
+            get { return photo; }
+        }
 
-		string photoextension = "photo";
-		public string PhotoExtension
-		{
-			get { return photoextension; }
-		}
+        string photoextension = "photo";
+        public string PhotoExtension
+        {
+            get { return photoextension; }
+        }
 
-		public string MessageBody
+        public string MessageBody
         {
             get
             {
@@ -68,29 +68,29 @@ namespace NbuExplorer
             }
         }
 
-		public DateTime MessageTime
-		{
-			get
-			{
-				DateTime time = GetDateTime("X-NOK-DT");
-				if (time == DateTime.MinValue)
-				{
-					try { time = DateTime.Parse(this["Date"]); }
-					catch { }
-				}
-				return time;
-			}
-		}
+        public DateTime MessageTime
+        {
+            get
+            {
+                DateTime time = GetDateTime("X-NOK-DT");
+                if (time == DateTime.MinValue)
+                {
+                    try { time = DateTime.Parse(this["Date"]); }
+                    catch { }
+                }
+                return time;
+            }
+        }
 
-		public bool MessageFound
-		{
-			get { return msgFound; }
-		}
+        public bool MessageFound
+        {
+            get { return msgFound; }
+        }
 
-		public string MessageBox
-		{
-			get
-			{
+        public string MessageBox
+        {
+            get
+            {
                 if (this["X-IRMC-STATUS"].ToUpper() == "DRAFT")
                 {
                     return "U";
@@ -116,157 +116,157 @@ namespace NbuExplorer
 
                 return "U";
             }
-		}
+        }
 
-		public string[] Keys
-		{
-			get
-			{
-				List<string> result = new List<string>();
-				foreach (string key in attrs.Keys)
-				{
-					result.Add(key);
-				}
-				return result.ToArray();
-			}
-		}
+        public string[] Keys
+        {
+            get
+            {
+                List<string> result = new List<string>();
+                foreach (string key in attrs.Keys)
+                {
+                    result.Add(key);
+                }
+                return result.ToArray();
+            }
+        }
 
-		public string this[string key]
-		{
-			get
-			{
-				if (attrs.ContainsKey(key)) return attrs[key];
-				return "";
-			}
-		}
+        public string this[string key]
+        {
+            get
+            {
+                if (attrs.ContainsKey(key)) return attrs[key];
+                return "";
+            }
+        }
 
-		public List<string> PhoneNumbers
-		{
-			get { return phoneNumbers; }
-		}
+        public List<string> PhoneNumbers
+        {
+            get { return phoneNumbers; }
+        }
 
-		const string parseDateFormat = "yyyyMMddTHHmmss";
+        const string parseDateFormat = "yyyyMMddTHHmmss";
 
-		public DateTime GetDateTime(string key)
-		{
-			if (!attrs.ContainsKey(key)) return DateTime.MinValue;
-			try
-			{
-				var timeStr = this[key];
-				var time = DateTime.ParseExact(timeStr.Substring(0, parseDateFormat.Length), parseDateFormat, System.Globalization.CultureInfo.InvariantCulture);
-				if (RecalculateUtcToLocal && timeStr.EndsWith("Z", StringComparison.Ordinal))
-				{
-					time = DateTime.SpecifyKind(time, DateTimeKind.Utc).ToLocalTime();
-				}
-				return time;
-			}
-			catch
-			{
-				return DateTime.MinValue;
-			}
-		}
+        public DateTime GetDateTime(string key)
+        {
+            if (!attrs.ContainsKey(key)) return DateTime.MinValue;
+            try
+            {
+                var timeStr = this[key];
+                var time = DateTime.ParseExact(timeStr.Substring(0, parseDateFormat.Length), parseDateFormat, System.Globalization.CultureInfo.InvariantCulture);
+                if (RecalculateUtcToLocal && timeStr.EndsWith("Z", StringComparison.Ordinal))
+                {
+                    time = DateTime.SpecifyKind(time, DateTimeKind.Utc).ToLocalTime();
+                }
+                return time;
+            }
+            catch
+            {
+                return DateTime.MinValue;
+            }
+        }
 
-		public string Name
-		{
-			get
-			{
-				string result = this["N"];
-				if (string.IsNullOrEmpty(result)) result = this["ORG"];
-				if (string.IsNullOrEmpty(result)) result = this["EMAIL"];
-				return result;
-			}
-		}
+        public string Name
+        {
+            get
+            {
+                string result = this["N"];
+                if (string.IsNullOrEmpty(result)) result = this["ORG"];
+                if (string.IsNullOrEmpty(result)) result = this["EMAIL"];
+                return result;
+            }
+        }
 
-		public string RawData
-		{
-			get { return rawData; }
-		}
+        public string RawData
+        {
+            get { return rawData; }
+        }
 
-		public Vcard(string data)
-		{
-			rawData = data;
-			Match msgBodyMatch = rexMsgBody.Match(data);
-			if (msgBodyMatch.Success)
-			{
-				msgFound = true;
-				msgBodyStart = msgBodyMatch.Groups[2].Index;
-				msgBodyLength = msgBodyMatch.Groups[2].Length;
-			}
+        public Vcard(string data)
+        {
+            rawData = data;
+            Match msgBodyMatch = rexMsgBody.Match(data);
+            if (msgBodyMatch.Success)
+            {
+                msgFound = true;
+                msgBodyStart = msgBodyMatch.Groups[2].Index;
+                msgBodyLength = msgBodyMatch.Groups[2].Length;
+            }
 
-			Match photoMatch = rexBase64photo.Match(data);
-			if (photoMatch.Success)
-			{
-				Group g = photoMatch.Groups["data"];
-				try
-				{
-					photo = Convert.FromBase64String(g.Value);
-					if (photoMatch.Groups["type"].Success)
-					{
-						photoextension = photoMatch.Groups["type"].Value.ToLower();
-					}
-					else if (photo[0] == 0xff && photo[1] == 0xd8 && photo[2] == 0xff)
-					{
-						photoextension = "jpg";
-					}
-				}
-				catch { }
-				data = data.Substring(0, photoMatch.Index) + data.Substring(photoMatch.Index + photoMatch.Length);
-			}
+            Match photoMatch = rexBase64photo.Match(data);
+            if (photoMatch.Success)
+            {
+                Group g = photoMatch.Groups["data"];
+                try
+                {
+                    photo = Convert.FromBase64String(g.Value);
+                    if (photoMatch.Groups["type"].Success)
+                    {
+                        photoextension = photoMatch.Groups["type"].Value.ToLower();
+                    }
+                    else if (photo[0] == 0xff && photo[1] == 0xd8 && photo[2] == 0xff)
+                    {
+                        photoextension = "jpg";
+                    }
+                }
+                catch { }
+                data = data.Substring(0, photoMatch.Index) + data.Substring(photoMatch.Index + photoMatch.Length);
+            }
 
-			data = rexQuoteEndSpaceBreak.Replace(data, "\r\n");
-			data = rexQuoteLineBreak.Replace(data, "");
-			string[] lines = data.Replace("\r\n", "\n").Split('\n');
+            data = rexQuoteEndSpaceBreak.Replace(data, "\r\n");
+            data = rexQuoteLineBreak.Replace(data, "");
+            string[] lines = data.Replace("\r\n", "\n").Split('\n');
 
-			foreach (string line in lines)
-			{
-				int index = line.IndexOf(':');
-				if (index < 1) continue;
-				string key = line.Substring(0, index);
-				if (key == "BEGIN" || key == "END") continue;
-				string value = line.Substring(index + 1);
-				if (string.IsNullOrEmpty(value)) continue;
+            foreach (string line in lines)
+            {
+                int index = line.IndexOf(':');
+                if (index < 1) continue;
+                string key = line.Substring(0, index);
+                if (key == "BEGIN" || key == "END") continue;
+                string value = line.Substring(index + 1);
+                if (string.IsNullOrEmpty(value)) continue;
 
-				if (key.StartsWith("TEL"))
-				{
-					phoneNumbers.Add(value);
-					continue;
-				}
+                if (key.StartsWith("TEL"))
+                {
+                    phoneNumbers.Add(value);
+                    continue;
+                }
 
-				Match me = rexEnc.Match(key);
-				Match mc = rexChs.Match(key);
-				if (me.Success)
-				{
-					if (me.Groups[1].Value == "QUOTED-PRINTABLE")
-					{
-						if (mc.Success)
-						{
-							value = QutedTextDecoder.Decode(mc.Groups[1].Value, value);
-						}
-						else
-						{
-							value = QutedTextDecoder.Decode("UTF-8", value);
-						}
-					}
-				}
+                Match me = rexEnc.Match(key);
+                Match mc = rexChs.Match(key);
+                if (me.Success)
+                {
+                    if (me.Groups[1].Value == "QUOTED-PRINTABLE")
+                    {
+                        if (mc.Success)
+                        {
+                            value = QuotedTextDecoder.Decode(mc.Groups[1].Value, value);
+                        }
+                        else
+                        {
+                            value = QuotedTextDecoder.Decode("UTF-8", value);
+                        }
+                    }
+                }
 
-				index = key.IndexOf(';');
-				if (index > 0) key = key.Substring(0, index);
+                index = key.IndexOf(';');
+                if (index > 0) key = key.Substring(0, index);
 
-				if (attrs.ContainsKey(key)) continue;
+                if (attrs.ContainsKey(key)) continue;
 
-				if (key == "N") // specialni preskladani jmena
-				{
-					string tmp = "";
-					foreach (string part in value.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
-					{
-						if (tmp.Length > 0) tmp += " ";
-						tmp += part;
-					}
-					value = tmp;
-				}
+                if (key == "N") // specialni preskladani jmena
+                {
+                    string tmp = "";
+                    foreach (string part in value.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (tmp.Length > 0) tmp += " ";
+                        tmp += part;
+                    }
+                    value = tmp;
+                }
 
-				attrs.Add(key, value);
-			}
-		}
-	}
+                attrs.Add(key, value);
+            }
+        }
+    }
 }

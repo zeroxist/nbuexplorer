@@ -1,6 +1,16 @@
 History & Changelog
 ===================
 
+Version 4.0
+ - added:    2 new export formats (vmsg & msg) for messages to support windows phones
+ - added:    preferences are persisted to config file
+ - added:    optional persisting of message related user data (messages and contacts)
+ - added:    optional sortable "message size" column in message grid
+ - added:    advanced filtering in message grid
+ - added:    ability to remove selected messages (e.g. before export)
+ - improved: NFB & NFC format parsing
+ - improved: parsing robustness minor fixes
+
 Version 3.3
  - added:    brute force scanning for JPEG images, 3GP/MP4 videos
              and zip archives
