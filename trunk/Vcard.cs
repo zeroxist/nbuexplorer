@@ -22,6 +22,7 @@
 *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NbuExplorer
@@ -39,8 +40,7 @@ namespace NbuExplorer
 
         private static Regex rexEnc = new Regex("ENCODING=([^;]+)");
         private static Regex rexChs = new Regex("CHARSET=([^;]+)");
-        private static Regex rexQuoteEndSpaceBreak = new Regex(@" +=\r\n[\s]*");
-        private static Regex rexQuoteLineBreak = new Regex(@"=\r\n[\s]*");
+        private static Regex rexQuoteLineBreak = new Regex(@"=(\r)?\n");
         private static Regex rexBase64photo = new Regex(@"PHOTO((;ENCODING=BASE64)|(;TYPE=(?<type>.*?))){1,2}:(?<data>.*?((\r\n\r\n)|(=\r\n)))", RegexOptions.Singleline);
         private static Regex rexMsgBody = new Regex(@"BEGIN:VBODY\r?\nDate:([0-9.: ]+)\r?\n(.*?)\r?\nEND:VBODY\r?\n", RegexOptions.Singleline);
 
@@ -213,7 +213,6 @@ namespace NbuExplorer
                 data = data.Substring(0, photoMatch.Index) + data.Substring(photoMatch.Index + photoMatch.Length);
             }
 
-            data = rexQuoteEndSpaceBreak.Replace(data, "\r\n");
             data = rexQuoteLineBreak.Replace(data, "");
             string[] lines = data.Replace("\r\n", "\n").Split('\n');
 
@@ -236,16 +235,42 @@ namespace NbuExplorer
                 Match mc = rexChs.Match(key);
                 if (me.Success)
                 {
-                    if (me.Groups[1].Value == "QUOTED-PRINTABLE")
+                    switch (me.Groups[1].Value)
                     {
-                        if (mc.Success)
-                        {
-                            value = QuotedTextDecoder.Decode(mc.Groups[1].Value, value);
-                        }
-                        else
-                        {
-                            value = QuotedTextDecoder.Decode("UTF-8", value);
-                        }
+                        case "QUOTED-PRINTABLE":
+                            if (mc.Success)
+                            {
+                                value = QuotedTextDecoder.Decode(mc.Groups[1].Value, value);
+                            }
+                            else
+                            {
+                                value = QuotedTextDecoder.Decode("UTF-8", value);
+                            }
+                            break;
+                        case "BASE64":
+                            try
+                            {
+                                string tmp = value;
+                                int padl = (int)Math.Ceiling(1.0 * tmp.Length / 4) * 4;
+                                if (tmp.Length != padl)
+                                {
+                                    tmp = value.PadRight(padl, '=');
+                                }
+                                byte[] raw = Convert.FromBase64String(tmp);
+
+                                Encoding enc = (mc.Success) ? Encoding.GetEncoding(mc.Groups[1].Value) : Encoding.UTF8;
+
+                                value = enc.GetString(raw);
+                            }
+                            catch
+                            { }
+                            break;
+                        /*
+                        case "8BIT":
+                            break;
+                        default:
+                            break;
+                        */
                     }
                 }
 

@@ -259,7 +259,12 @@ namespace NbuExplorer
                 else if (!bruteForceScan && fileext == ".nbu")
                 {
                     fs.Seek(0x14, SeekOrigin.Begin);
-                    fs.Seek(StreamUtils.ReadUInt64asLong(fs), SeekOrigin.Begin);
+                    long offset = StreamUtils.ReadUInt64asLong(fs);
+                    if (offset > fs.Length)
+                    {
+                        throw new InvalidDataException("Invalid nbu file structure");
+                    }
+                    fs.Seek(offset, SeekOrigin.Begin);
                     fs.Seek(0x14, SeekOrigin.Current);
 
                     addLine("Backup time:\t" + StreamUtils.ReadNokiaDateTime(fs).ToString()); // datetime
